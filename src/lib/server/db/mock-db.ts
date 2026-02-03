@@ -1,18 +1,18 @@
 import { canViewAllChatConfigs } from "$lib/authorization"
 import type { AuthenticatedPrincipal } from "$lib/types/authentication"
-import type { ChatConfig } from "$lib/types/chat"
+import type { ChatConfig, NewChatConfig } from "$lib/types/chat"
 import type { IChatConfigStore } from "$lib/types/db/db-interface"
 import { APP_CONFIG } from "../app-config/app-config"
 
-const mockChatConfigs: ChatConfig[] = [
+let mockChatConfigs: ChatConfig[] = [
 	{
-		_id: "1234",
-		name: "Snille Mistral",
-		description: "En snill Mistral",
+		_id: "1000",
+		name: "Mistral",
+		description: "Mistral er en kraftig europeisk variant av ChatGPT",
 		vendorId: "MISTRAL",
 		project: "DEFAULT",
-		model: "mistral-medium-latest",
-		instructions: "Answer in Norwegian. Be overly polite and friendly.",
+		model: "mistral-large-latest",
+		instructions: "",
 		accessGroups: "all",
 		type: "published",
 		created: {
@@ -29,13 +29,36 @@ const mockChatConfigs: ChatConfig[] = [
 		}
 	},
 	{
-		_id: "5678",
-		name: "Sure OpenAI",
-		description: "En sur OpenAI",
+		_id: "2000",
+		name: "ChatGPT rask",
+		description: "OpenAIs KI for rask og presis informasjon.",
 		vendorId: "OPENAI",
 		project: "DEFAULT",
-		model: "gpt-4o",
-		instructions: "Answer in Norwegian. Be very grumpy and sarcastic.",
+		model: "gpt-4.1",
+		instructions: "",
+		accessGroups: "all",
+		type: "published",
+		created: {
+			at: new Date().toISOString(),
+			by: {
+				id: "system"
+			}
+		},
+		updated: {
+			at: new Date().toISOString(),
+			by: {
+				id: "system"
+			}
+		}
+	},
+	{
+		_id: "3000",
+		name: "ChatGPT tenker",
+		description: "OpenAIs avanserte og nyeste KI for rask tenkning og resonnering.",
+		vendorId: "OPENAI",
+		project: "DEFAULT",
+		model: "gpt-5.2",
+		instructions: "",
 		accessGroups: "all",
 		type: "published",
 		created: {
@@ -84,15 +107,18 @@ export class MockChatConfigStore implements IChatConfigStore {
 		}
 		return mockChatConfigs.filter((config) => config.vendorAgent?.id === vendorAgentId)
 	}
-	async createChatConfig(chatConfig: Omit<ChatConfig, "_id">): Promise<ChatConfig> {
+	async createChatConfig(chatConfig: NewChatConfig): Promise<ChatConfig> {
 		const newConfig: ChatConfig = { ...chatConfig, _id: Date.now().toString() }
 		mockChatConfigs.push(newConfig)
 		return newConfig
 	}
-	async replaceChatConfig(configId: string, chatConfig: ChatConfig): Promise<ChatConfig> {
+	async replaceChatConfig(configId: string, chatConfig: NewChatConfig): Promise<ChatConfig> {
 		const config = mockChatConfigs.find((config) => config._id === configId)
 		if (!config) throw new Error("ChatConfig not found")
 		Object.assign(config, chatConfig)
 		return config
+	}
+	async deleteChatConfig(configId: string): Promise<void> {
+		mockChatConfigs = mockChatConfigs.filter((config) => config._id !== configId)
 	}
 }
