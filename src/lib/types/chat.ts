@@ -10,7 +10,13 @@ export type VendorAgent = {
 }
 
 export type ChatTool = {
-	type: "tools_not_implemented_yet"
+	type: "web_search"
+}
+
+export type RoleAccessGroups = "all" | "employee" | "edu_employee" | "student"
+export type EntraAccessGroup = {
+	id: string
+	displayName: string
 }
 
 export type ChatConfig = {
@@ -23,9 +29,10 @@ export type ChatConfig = {
 	model?: string | undefined
 	instructions?: string | undefined
 	conversationId?: string | undefined
-	tools?: ChatTool[]
+	tools?: ChatTool[] | undefined | null
 	type: "published" | "private"
-	accessGroups: "all" | string[]
+	shared?: boolean | undefined
+	accessGroups: (RoleAccessGroups | EntraAccessGroup)[]
 	created: {
 		at: string
 		by: {
@@ -110,10 +117,15 @@ export const ChatConfigSchema = schemaForType<ChatConfig>()(
 		project: z.string(),
 		vendorAgent: z.object({ id: z.string() }).optional(),
 		model: z.string().optional(),
+		tools: z
+			.array(z.object({ type: z.enum(["web_search"]) }))
+			.nullable()
+			.optional(), // Update as per ChatTool for now
+		shared: z.boolean().optional(),
 		instructions: z.string().optional(),
 		conversationId: z.string().optional(),
 		type: z.enum(["published", "private"]), // Update as per ChatConfig for now
-		accessGroups: z.union([z.literal("all"), z.array(z.string())]),
+		accessGroups: z.array(z.union([z.literal("all"), z.literal("employee"), z.literal("edu_employee"), z.literal("student"), z.object({ id: z.string(), displayName: z.string() })])),
 		created: z.object({
 			at: z.string(),
 			by: z.object({

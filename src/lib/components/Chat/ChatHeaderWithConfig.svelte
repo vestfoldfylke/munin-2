@@ -1,15 +1,17 @@
 <script lang="ts">
 	import { slide } from "svelte/transition"
+	import { page } from "$app/state"
 	import { canEditChatConfig, canEditPredefinedConfig, canPublishChatConfig } from "$lib/authorization"
 	import type { ChatConfig, VendorId } from "$lib/types/chat"
 	import GrowingTextArea from "../GrowingTextArea.svelte"
 	import type { ChatState } from "./ChatState.svelte"
+	import ConversationExport from "./ConversationExport.svelte"
 
 	type Props = {
 		chatState: ChatState
 	}
 
-	let { chatState }: Props = $props()
+	let { chatState = $bindable() }: Props = $props()
 
 	let showDescription: boolean = $state(false)
 
@@ -64,6 +66,12 @@
 			name += "*"
 		}
 		return name
+	}
+
+	const copyAgentUrl = async () => {
+		await navigator.clipboard.writeText(page.url.href)
+		chatState.chat.config.shared = true
+		alert("Agentens adresse er kopiert til utklippstavlen og kan limes inn i en mail eller melding for å deles med andre.\n\nNB: Alle med lenken kan bruke agenten.")
 	}
 
 	// Almost illegal effect, but we need to auto-select first available model when changing vendor in manual config
@@ -154,6 +162,9 @@
 					<span class="material-symbols-rounded">edit_square</span>
 					<span class="widescreen-span">Ny samtale</span>
 				</button>
+				{#if !chatState.APP_CONFIG.CONVERSATION_EXPORT_DISABLED}
+					<ConversationExport bind:chat={chatState.chat} />
+				{/if}
 			{/if}
 			{#if userCanEditConfig}
 				{#if chatState.configMode && chatState.configEdited}
@@ -202,6 +213,18 @@
 				</div>
 			</div>
 
+						
+			<!-- Sharing selection -->
+			<div class="config-section">
+				<div>
+					<label for="shared_box" class="radio-label"><input type="checkbox" bind:checked={chatState.chat.config.shared} name="shared_box" />Del agent</label>
+					<button class="label-button" disabled={!chatState.chat.config.shared} onclick={copyAgentUrl}><span class="material-symbols-outlined">content_copy</span></button>
+				</div>
+					<div id="share_section">
+						Ved å dele din agent kan de som har url'en til den bruke den, men den blir ikke listet opp noe sted.						
+					</div>
+			</div>
+
 			<!-- Publish options -->
 			{#if canPublishChatConfig(chatState.user, chatState.APP_CONFIG.APP_ROLES)}
 				<div class="config-section">
@@ -215,13 +238,16 @@
 					{#if chatState.chat.config.type === "published"}
 						<div class="config-item">
 							<label for="access-groups">Tilgang</label>
-							<select id="access-groups" bind:value={chatState.chat.config.accessGroups}>
+							<select multiple id="access-groups" bind:value={chatState.chat.config.accessGroups}>
 								<option value="all">Alle</option>
+								<option value="employee">Ansatte</option>
+								<option value="edu_employee">Skole-ansatte</option>
+								<option value="student">Elever og skole-ansatte</option>
 							</select>
-						</div>
+						</div>					
 					{/if}
 				</div>
-			{/if}
+			{/if}			
 
 			<!-- Config type selection -->
 			{#if userCanEditPredefinedConfig}
@@ -331,6 +357,14 @@
 {/if}
 
 <style>
+	button.label-button {
+		border:0 solid black;
+		background-color: transparent;
+		font-size: smaller;
+		display: inline;
+		width: 8px;
+	}
+
 	.chat-header, .chat-config-container {
 		max-width: 50rem;
 		margin: 0 auto;

@@ -32,6 +32,7 @@ export const parseChatConfig = (input: unknown, APP_CONFIG: AppConfig): ChatConf
 			vendorAgent: {
 				id: parsedConfig.vendorAgent.id
 			},
+			shared: parsedConfig.shared,
 			accessGroups: parsedConfig.accessGroups,
 			type: parsedConfig.type,
 			created: parsedConfig.created,
@@ -42,6 +43,8 @@ export const parseChatConfig = (input: unknown, APP_CONFIG: AppConfig): ChatConf
 	if (!VENDOR.MODELS.some((model) => model.ID === parsedConfig.model)) {
 		throw new HTTPError(400, `Unsupported model: ${parsedConfig.model} for vendorId: ${parsedConfig.vendorId}`)
 	}
+
+	// NB : Husk å legge til propertiene i dette objektet også. Spesielt hvis det er optional så er det lett å glemme.
 	return {
 		_id: parsedConfig._id,
 		name: parsedConfig.name,
@@ -51,6 +54,8 @@ export const parseChatConfig = (input: unknown, APP_CONFIG: AppConfig): ChatConf
 		model: parsedConfig.model,
 		instructions: parsedConfig.instructions,
 		conversationId: parsedConfig.conversationId,
+		tools: parsedConfig.tools || [],
+		shared: parsedConfig.shared,
 		accessGroups: parsedConfig.accessGroups,
 		type: parsedConfig.type,
 		created: parsedConfig.created,
