@@ -73,7 +73,7 @@ export type ChatResponseObject = {
 	config: ChatConfig
 	createdAt: string
 	outputs: ChatOutputItem[]
-	status: "completed" | "failed" | "in_progress" | "cancelled" | "queued" | "incomplete"
+	status: "completed" | "failed" | "in_progress" | "cancelled" | "queued" | "incomplete" | "searching"
 	usage: ChatResponseUsage
 }
 
@@ -113,7 +113,7 @@ export const ChatConfigSchema = schemaForType<ChatConfig>()(
 		_id: z.string(),
 		name: z.string(),
 		description: z.string(),
-		vendorId: z.enum(["MISTRAL", "OPENAI", "OLLAMA"]), // Update as per AppConfig Vendor keys for now
+		vendorId: z.enum(["MISTRAL", "OPENAI", "OLLAMA", "LITELLM"]), // Update as per AppConfig Vendor keys for now
 		project: z.string(),
 		vendorAgent: z.object({ id: z.string() }).optional(),
 		model: z.string().optional(),

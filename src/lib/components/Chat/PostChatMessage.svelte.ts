@@ -83,6 +83,10 @@ export const postChatMessage = async (chatRequest: ChatRequest, chatResponseObje
 								addMessageDeltaToChatItem(chatResponseObject, chatResult.data.itemId, chatResult.data.content)
 								break
 							}
+							case "response.searching": {
+								chatResponseObject.status = "searching"
+								break
+							}
 							case "response.done": {
 								console.log("Response done. Total tokens used:", chatResult.data.usage.totalTokens)
 								chatResponseObject.status = "completed"
@@ -92,7 +96,8 @@ export const postChatMessage = async (chatRequest: ChatRequest, chatResponseObje
 							case "response.annotations": {
 								const outputMessage = chatResponseObject.outputs.find((o) => o.type === "message.output" && o.id === chatResult.data.itemId)
 								if (outputMessage?.type === "message.output" && outputMessage.content[0]?.type === "output_text") {
-									outputMessage.content[0].annotations = chatResult.data.annotations
+									const existing = outputMessage.content[0].annotations ?? []
+									outputMessage.content[0].annotations = [...existing, ...chatResult.data.annotations]
 								}
 								break
 							}

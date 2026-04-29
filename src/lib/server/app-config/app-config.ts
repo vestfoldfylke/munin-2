@@ -11,13 +11,14 @@ export const APP_CONFIG: AppConfig = {
 	NAME: env.APP_NAME || "Mugin",
 	BODY_SIZE_LIMIT_BYTES: env.BODY_SIZE_LIMIT?.endsWith("M") ? Number(env.BODY_SIZE_LIMIT.split("M")[0]) * 1024 * 1024 : 10 * 1024 * 1024,
 	APP_ROLES: {
-		ADMIN: env.APP_ROLE_ADMIN,
-		AGENT_MAINTAINER: env.APP_ROLE_AGENT_MAINTAINER,
-		EMPLOYEE: env.APP_ROLE_EMPLOYEE,
-		STUDENT: env.APP_ROLE_STUDENT,
+		ADMIN: env.APP_ROLE_ADMIN as string,
+		AGENT_MAINTAINER: env.APP_ROLE_AGENT_MAINTAINER as string,
+		EMPLOYEE: env.APP_ROLE_EMPLOYEE as string,
+		STUDENT: env.APP_ROLE_STUDENT as string,
 		EDU_EMPLOYEE: env.APP_ROLE_EDU_EMPLOYEE || "eduemployee"
 	},
 	CONVERSATION_EXPORT_DISABLED: env.CONVERSATION_EXPORT_DISABLED === "true",
+	NEW_CHAT_CONFIRM_DISABLED: env.NEW_CHAT_CONFIRM_DISABLED === "true",
 	VENDORS: {
 		MISTRAL: {
 			NAME: "Mistral",
@@ -76,6 +77,13 @@ export const APP_CONFIG: AppConfig = {
 						FILE: OPEN_AI_DEFAULT_SUPPORTED_MESSAGE_FILE_MIME_TYPES,
 						IMAGE: OPEN_AI_DEFAULT_SUPPORTED_MESSAGE_IMAGE_MIME_TYPES
 					}
+				},
+				{
+					ID: "gpt-5.4",
+					SUPPORTED_MESSAGE_FILE_MIME_TYPES: {
+						FILE: OPEN_AI_DEFAULT_SUPPORTED_MESSAGE_FILE_MIME_TYPES,
+						IMAGE: OPEN_AI_DEFAULT_SUPPORTED_MESSAGE_IMAGE_MIME_TYPES
+					}
 				}
 			]
 		},
@@ -85,11 +93,29 @@ export const APP_CONFIG: AppConfig = {
 			PROJECTS: ["DEFAULT"],
 			MODELS: [
 				{
-					ID: "llama3",
+					ID: "llama3:8b",
 					SUPPORTED_MESSAGE_FILE_MIME_TYPES: {
 						FILE: [],
 						IMAGE: []
 					}
+				},
+				{
+					ID: "LTG/normistral-11b-thinking:latest",
+					SUPPORTED_MESSAGE_FILE_MIME_TYPES: {
+						FILE: [],
+						IMAGE: []
+					}
+				}
+			]
+		},
+		LITELLM: {
+			NAME: "Telemark fylkeskommune",
+			ENABLED: Boolean(env.LITELLM_BASE_URL),
+			PROJECTS: ["DEFAULT"],
+			MODELS: [
+				{
+					ID: "norallm/normistral-11b-thinking",
+					SUPPORTED_MESSAGE_FILE_MIME_TYPES: { FILE: [], IMAGE: [] }
 				}
 			]
 		}

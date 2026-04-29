@@ -57,11 +57,16 @@ const ResponseAnnotations = z.object({
 				type: z.literal("url_citation"),
 				url: z.string(),
 				title: z.string(),
-				startIndex: z.number(),
-				endIndex: z.number()
+				startIndex: z.number().optional(), // Mistral bruker idndexer på sitteringer. Det gjør ikke OpenaAI
+				endIndex: z.number().optional()
 			})
 		)
 	})
+})
+
+const ResponseWebsearch = z.object({
+	event: z.literal("response.searching"),
+	data: z.object({})
 })
 
 export const MuginSse = z.discriminatedUnion("event", [
@@ -72,7 +77,8 @@ export const MuginSse = z.discriminatedUnion("event", [
 	ResponseError,
 	ResponseOutputTextDelta,
 	ConversationCreated,
-	ResponseAnnotations
+	ResponseAnnotations,
+	ResponseWebsearch
 ])
 
 export type MuginSse = z.infer<typeof MuginSse>
